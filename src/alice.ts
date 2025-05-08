@@ -1,5 +1,5 @@
-import { createServer } from "node:net";
 import { createHash } from "node:crypto";
+import { createServer } from "node:net";
 
 const hash = createHash("sha256");
 
