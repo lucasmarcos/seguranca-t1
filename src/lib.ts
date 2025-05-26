@@ -13,11 +13,13 @@ import {
 } from "node:crypto";
 
 // SHA-256
+// Hash para verificação de integridade
 export const hash = (mensagem) => {
   return createHash("sha256").update(mensagem).digest("hex");
 };
 
 // AES
+// Criptografia simétrica para proteger o conteúdo da mensagem
 export const gerarChaveSimetrica = () => {
   const key = generateKeySync("aes", { length: 256 });
   const buffer = key.export();
@@ -64,6 +66,7 @@ const desencriptar = (
 };
 
 // RSA
+// Criptografia assimétrica para troca segura da chave simétrica
 export const gerarChavesAssimetricas = () => {
   const { publicKey, privateKey } = generateKeyPairSync("rsa", {
     modulusLength: 2048,
@@ -109,6 +112,7 @@ export const desencriptarComChavePrivada = (
 };
 
 // Assinatura
+// Assinatura digital para autenticar o remetente
 export const assinar = (mensagem: string, chavePrivada: string) => {
   const assinador = createSign("SHA256");
   assinador.update(mensagem);
@@ -129,6 +133,7 @@ export const verificar = (
 };
 
 // Certificado
+// Certificado digital simulado para validar a chave pública do remetente
 export const gerarCertificado = (dono: string, chavePublica: string) => {
   return {
     dono,
