@@ -1,8 +1,13 @@
 {
+  "type": "module",
+  "packageManager": "npm@11.4.1+sha512.fcee43884166b6f9c5d04535fb95650e9708b6948a1f797eddf40e9778646778a518dfa32651b1c62ff36f4ac42becf177ca46ca27d53f24b539190c8d91802b",
   "dependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@types/node": "^22.15.17",
+    "@types/node": "^22.15.21",
     "typescript": "^5.8.3"
   },
-  "packageManager": "npm@11.3.0+sha512.96eb611483f49c55f7fa74df61b588de9e213f80a256728e6798ddc67176c7b07e4a1cfc7de8922422cbce02543714367037536955221fa451b0c4fefaf20c66"
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  }
 }
