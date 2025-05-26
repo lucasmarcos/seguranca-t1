@@ -16,8 +16,7 @@ Fundamentação Teórica:
 - Criptografia Simétrica (AES): Usada para criptografar a mensagem com uma única chave.
 - Criptografia Assimétrica (RSA): Usada para proteger a chave simétrica durante a transmissão.
 - Assinatura Digital: Garantia de autenticidade da mensagem.
-- Certificado Digital: Confirma a identidade do remetente (simulado via JSON, por exem-
-plo).
+- Certificado Digital: Confirma a identidade do remetente (simulado via JSON, por exemplo).
 
 Resultados Esperados: A mensagem será descriptografada corretamente se nenhuma alteração for feita no pacote.
 Caso a assinatura não corresponda ou o certificado esteja adulterado, o sistema acusará erro.
@@ -25,4 +24,5 @@ Confirma a segurança, integridade e autenticidade.
 
 Equipe: O trabalho poderá ser desenvolvido e apresentado em equipes de até quatro integrantes.
 
-Apresentação: As apresentação do trabalho consistirá na gravação de um vídeo explicando o sistema desenvolvido. Que deverá ser enviado via moodle, o vídeo, e o código completo da  aplicação.
+Apresentação: A apresentação do trabalho consistirá na gravação de um vídeo explicando o sistema desenvolvido.
+Que deverá ser enviado via moodle, o vídeo, e o código completo da  aplicação.

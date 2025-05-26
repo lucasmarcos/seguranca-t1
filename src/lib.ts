@@ -1,10 +1,18 @@
 import { createHash } from "node:crypto";
 
-export const hashify = (mensagem) => {
-  const hash = createHash("sha256");
-  hash.update(mensagem);
-  return hash.digest("hex");
+// SHA-256
+export const hash = (mensagem) => {
+  return createHash("sha256").update(mensagem).digest("hex");
 };
 
+// AES
+export const simetrica = () => {};
+
+// RSA
+export const assimetrica = () => {};
+
+export const assinatura = () => {};
+
+export const certificado = () => {};
 
 
