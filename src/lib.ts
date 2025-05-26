@@ -5,25 +5,44 @@ import {
   createSign,
   createVerify,
   generateKeyPairSync,
-  generateKeySync,
   privateDecrypt,
   publicDecrypt,
   publicEncrypt,
   randomBytes,
 } from "node:crypto";
 
+import { fileURLToPath } from "url";
+import fs from "fs";
+import path from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const ROOT_DIR = path.resolve(__dirname, "..");
+const BASE_PATH = path.resolve(ROOT_DIR, "out");
+
+
+export function salvarArquivo(nome: string, conteudo: string | Buffer) {
+  if (!fs.existsSync(BASE_PATH)) {
+    fs.mkdirSync(BASE_PATH, { recursive: true });
+  }
+  const filePath = path.join(BASE_PATH, nome);
+  fs.writeFileSync(filePath, conteudo);
+}
+
+export function lerArquivo(nome: string, encoding: BufferEncoding = "utf-8") {
+  const filePath = path.join(BASE_PATH, nome);
+  return fs.readFileSync(filePath, encoding);
+}
+
 // SHA-256
-// Hash para verificação de integridade
-export const hash = (mensagem) => {
+export const hash = (mensagem: string) => {
   return createHash("sha256").update(mensagem).digest("hex");
 };
 
 // AES
-// Criptografia simétrica para proteger o conteúdo da mensagem
 export const gerarChaveSimetrica = () => {
-  const key = generateKeySync("aes", { length: 256 });
-  const buffer = key.export();
-  return buffer.toString("base64");
+  const key = randomBytes(16);
+  return key.toString("base64");
 };
 
 export const encriptar = (mensagem: string, chave: string) => {
@@ -41,10 +60,10 @@ export const encriptar = (mensagem: string, chave: string) => {
   };
 };
 
-const desencriptar = (
+export const desencriptar = (
   mensagemEncriptada: string,
   chave: string,
-  vetorAleatorio: string,
+  vetorAleatorio: string
 ) => {
   const chaveSimetrica = Buffer.from(chave, "base64");
   const vetorAleatorioBuffer = Buffer.from(vetorAleatorio, "base64");
@@ -52,13 +71,13 @@ const desencriptar = (
   const decifra = createDecipheriv(
     "aes-128-cbc",
     chaveSimetrica,
-    vetorAleatorioBuffer,
+    vetorAleatorioBuffer
   );
 
   let mensagemDecriptada = decifra.update(
     mensagemEncriptada,
     "base64",
-    "utf-8",
+    "utf-8"
   );
   mensagemDecriptada += decifra.final("utf-8");
 
@@ -66,7 +85,6 @@ const desencriptar = (
 };
 
 // RSA
-// Criptografia assimétrica para troca segura da chave simétrica
 export const gerarChavesAssimetricas = () => {
   const { publicKey, privateKey } = generateKeyPairSync("rsa", {
     modulusLength: 2048,
@@ -84,35 +102,34 @@ export const gerarChavesAssimetricas = () => {
 };
 
 export const encriptarComChavePublica = (
-  mensagem: string,
-  chavePublica: string,
+  mensagem: Buffer | string,
+  chavePublica: string
 ) => {
   return publicEncrypt(chavePublica, mensagem);
 };
 
 export const desencriptarComChavePublica = (
-  mensagem: string,
-  chavePublica: string,
+  mensagem: Buffer,
+  chavePublica: string
 ) => {
   return publicDecrypt(chavePublica, mensagem);
 };
 
 export const encriptarComChavePrivada = (
-  mensagem: string,
-  chavePrivada: string,
+  mensagem: Buffer | string,
+  chavePrivada: string
 ) => {
   return privateDecrypt(chavePrivada, mensagem);
 };
 
 export const desencriptarComChavePrivada = (
-  mensagem: string,
-  chavePrivada: string,
+  mensagem: Buffer,
+  chavePrivada: string
 ) => {
   return privateDecrypt(chavePrivada, mensagem);
 };
 
 // Assinatura
-// Assinatura digital para autenticar o remetente
 export const assinar = (mensagem: string, chavePrivada: string) => {
   const assinador = createSign("SHA256");
   assinador.update(mensagem);
@@ -123,7 +140,7 @@ export const assinar = (mensagem: string, chavePrivada: string) => {
 export const verificar = (
   mensagem: string,
   assinatura: string,
-  chavePublica: string,
+  chavePublica: string
 ) => {
   const assinaturaBuffer = Buffer.from(assinatura, "base64");
   const verificador = createVerify("SHA256");
@@ -133,7 +150,6 @@ export const verificar = (
 };
 
 // Certificado
-// Certificado digital simulado para validar a chave pública do remetente
 export const gerarCertificado = (dono: string, chavePublica: string) => {
   return {
     dono,
