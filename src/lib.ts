@@ -2,6 +2,8 @@ import {
   createCipheriv,
   createDecipheriv,
   createHash,
+  createSign,
+  createVerify,
   generateKeyPairSync,
   generateKeySync,
   privateDecrypt,
@@ -107,7 +109,24 @@ export const desencriptarComChavePrivada = (
 };
 
 // Assinatura
-export const assinar = (chavePrivada: string, hash: string) => {};
+export const assinar = (mensagem: string, chavePrivada: string) => {
+  const assinador = createSign("SHA256");
+  assinador.update(mensagem);
+  assinador.end();
+  return assinador.sign(chavePrivada, "base64");
+};
+
+export const verificar = (
+  mensagem: string,
+  assinatura: string,
+  chavePublica: string,
+) => {
+  const assinaturaBuffer = Buffer.from(assinatura, "base64");
+  const verificador = createVerify("SHA256");
+  verificador.update(mensagem);
+  verificador.end();
+  return verificador.verify(chavePublica, assinaturaBuffer);
+};
 
 // Certificado
 export const gerarCertificado = (dono: string, chavePublica: string) => {
