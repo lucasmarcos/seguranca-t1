@@ -4,9 +4,9 @@ import { fileURLToPath } from "url";
 import { spawn } from "child_process";
 
 import {
-  gerarChavesAssimetricas,
-  gerarCertificado,
-  salvarArquivo,
+  generateAsymmetricKeys,
+  generateCertificate,
+  saveFile,
 } from "./lib.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,7 +20,7 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-function menu() {
+function showMenu() {
   console.log("\n=== MENU ===");
   console.log("1. Gerar chaves e certificados");
   console.log("2. Executar Alice");
@@ -30,44 +30,44 @@ function menu() {
   rl.question("Escolha uma opção: ", (resposta) => {
     switch (resposta) {
       case "1":
-        gerarChavesECertificados();
+        generateKeysAndCertificates();
         break;
       case "2":
-        executarPrograma("alice.js");
+        runProgram("alice.js");
         break;
       case "3":
-        executarPrograma("bob.js");
+        runProgram("bob.js");
         break;
       case "4":
         rl.close();
         break;
       default:
         console.log("❌ Opção inválida.");
-        menu();
+        showMenu();
     }
   });
 }
 
-function gerarChavesECertificados() {
-  const { publicKey: alicePub, privateKey: alicePriv } = gerarChavesAssimetricas();
-  const certificadoAlice = gerarCertificado("Alice", alicePub);
+function generateKeysAndCertificates() {
+  const { publicKey: alicePub, privateKey: alicePriv } = generateAsymmetricKeys();
+  const certificadoAlice = generateCertificate("Alice", alicePub);
 
-  salvarArquivo("certificado-alice.json", JSON.stringify(certificadoAlice, null, 2));
-  salvarArquivo("chave-publica-alice.pem", alicePub);
-  salvarArquivo("chave-privada-alice.pem", alicePriv);
+  saveFile("certificado-alice.json", JSON.stringify(certificadoAlice, null, 2));
+  saveFile("chave-publica-alice.pem", alicePub);
+  saveFile("chave-privada-alice.pem", alicePriv);
 
-  const { publicKey: bobPub, privateKey: bobPriv } = gerarChavesAssimetricas();
-  const certificadoBob = gerarCertificado("Bob", bobPub);
+  const { publicKey: bobPub, privateKey: bobPriv } = generateAsymmetricKeys();
+  const certificadoBob = generateCertificate("Bob", bobPub);
 
-  salvarArquivo("certificado-bob.json", JSON.stringify(certificadoBob, null, 2));
-  salvarArquivo("chave-publica-bob.pem", bobPub);
-  salvarArquivo("chave-privada-bob.pem", bobPriv);
+  saveFile("certificado-bob.json", JSON.stringify(certificadoBob, null, 2));
+  saveFile("chave-publica-bob.pem", bobPub);
+  saveFile("chave-privada-bob.pem", bobPriv);
 
   console.log("✔️ Chaves e certificados gerados e salvos na pasta 'out/'.");
-  menu();
+  showMenu();
 }
 
-function executarPrograma(arquivo: string) {
+function runProgram(arquivo) {
   const scriptPath = path.resolve(BASE_PATH, arquivo);
 
   const processo = spawn("node", [scriptPath], {
@@ -76,9 +76,8 @@ function executarPrograma(arquivo: string) {
 
   processo.on("close", (code) => {
     console.log(`Processo ${arquivo} finalizado com código ${code}`);
-    menu();
+    showMenu();
   });
 }
 
-
-menu();
+showMenu();

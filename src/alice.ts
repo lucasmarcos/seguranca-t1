@@ -1,14 +1,14 @@
 import { createServer } from "net";
 import {
-  desencriptarComChavePrivada,
-  verificar,
-  desencriptar,
-  hash,
+  decryptWithPrivateKey,
+  verifySignature,
+  decryptAES,
+  sha256Hash,
+  readFile,
 } from "./lib.js";
-import { lerArquivo } from "./lib.js";
 
-const privAlice = lerArquivo("chave-privada-alice.pem", "utf-8");
-const certBob = JSON.parse(lerArquivo("certificado-bob.json"));
+const privAlice = readFile("chave-privada-alice.pem", "utf-8");
+const certBob = JSON.parse(readFile("certificado-bob.json"));
 const pubBob = certBob.chavePublica;
 
 let symKey = "";
@@ -17,7 +17,6 @@ const server = createServer((socket) => {
   console.log("Alice: Bob se conectou.");
 
   socket.on("data", (data) => {
-    // se acontecer multiplos envios
     const mensagens = data
       .toString()
       .split("}{")
@@ -33,7 +32,7 @@ const server = createServer((socket) => {
       if (recebido.encryptedSymKey) {
         const { encryptedSymKey, signature } = recebido;
 
-        const signatureOk = verificar(encryptedSymKey, signature, pubBob);
+        const signatureOk = verifySignature(encryptedSymKey, signature, pubBob);
 
         if (!signatureOk) {
           console.error("Assinatura inválida na chave simétrica.");
@@ -41,7 +40,7 @@ const server = createServer((socket) => {
           return;
         }
 
-        const symKeyBuffer = desencriptarComChavePrivada(
+        const symKeyBuffer = decryptWithPrivateKey(
           Buffer.from(encryptedSymKey, "base64"),
           privAlice
         );
@@ -51,7 +50,7 @@ const server = createServer((socket) => {
       } else if (recebido.ciphertext) {
         const { iv, ciphertext, hash: h, signature } = recebido;
 
-        const hashOk = verificar(h, signature, pubBob);
+        const hashOk = verifySignature(h, signature, pubBob);
 
         if (!hashOk) {
           console.error("Assinatura inválida na mensagem.");
@@ -59,10 +58,9 @@ const server = createServer((socket) => {
           return;
         }
 
-        const mensagem = desencriptar(ciphertext, symKey, iv);
+        const mensagem = decryptAES(ciphertext, symKey, iv);
 
-        // Verifica integridade
-        if (h !== hash(mensagem)) {
+        if (h !== sha256Hash(mensagem)) {
           console.error("Hash incorreto: integridade comprometida.");
           socket.destroy();
           return;
