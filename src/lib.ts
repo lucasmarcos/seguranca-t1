@@ -31,7 +31,9 @@ export const assimetrica = () => {
 
 export const assinatura = () => {};
 
-export const certificado = () => {};
-
-console.log(simetrica());
-console.log(assimetrica());
+export const certificado = (dono: string, chavePublica: string) => {
+  return {
+    dono,
+    chavePublica,
+  };
+};
