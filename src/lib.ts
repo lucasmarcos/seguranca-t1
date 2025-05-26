@@ -1,4 +1,10 @@
-import { createHash, generateKeyPairSync, generateKeySync } from "node:crypto";
+import {
+  createCipheriv,
+  createHash,
+  generateKeyPairSync,
+  generateKeySync,
+  randomBytes,
+} from "node:crypto";
 
 // SHA-256
 export const hash = (mensagem) => {
@@ -10,6 +16,21 @@ export const simetrica = () => {
   const key = generateKeySync("aes", { length: 256 });
   const buffer = key.export();
   return buffer.toString("base64");
+};
+
+export const encriptar = (mensagem: string, chave: string) => {
+  const vetorAleatorio = randomBytes(16);
+  const chaveSimetrica = Buffer.from(chave, "base64");
+
+  const cifra = createCipheriv("aes-128-cbc", chaveSimetrica, vetorAleatorio);
+
+  let mensagemEncriptada = cifra.update(mensagem, "utf-8", "base64");
+  mensagemEncriptada += cifra.final("base64");
+
+  return {
+    mensagemEncriptada,
+    vetorAleatorio: vetorAleatorio.toString("base64"),
+  };
 };
 
 // RSA
