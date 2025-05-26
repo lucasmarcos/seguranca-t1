@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, generateKeyPairSync, generateKeySync } from "node:crypto";
 
 // SHA-256
 export const hash = (mensagem) => {
@@ -6,13 +6,32 @@ export const hash = (mensagem) => {
 };
 
 // AES
-export const simetrica = () => {};
+export const simetrica = () => {
+  const key = generateKeySync("aes", { length: 256 });
+  const buffer = key.export();
+  return buffer.toString("base64");
+};
 
 // RSA
-export const assimetrica = () => {};
+export const assimetrica = () => {
+  const { publicKey, privateKey } = generateKeyPairSync("rsa", {
+    modulusLength: 2048,
+    publicKeyEncoding: {
+      type: "pkcs1",
+      format: "pem",
+    },
+    privateKeyEncoding: {
+      type: "pkcs8",
+      format: "pem",
+    },
+  });
+
+  return { publicKey, privateKey };
+};
 
 export const assinatura = () => {};
 
 export const certificado = () => {};
 
-
+console.log(simetrica());
+console.log(assimetrica());
