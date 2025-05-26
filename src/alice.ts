@@ -1,7 +1,7 @@
 import { createServer } from "node:net";
-import { simetrica } from "./lib.js";
+import { gerarChaveSimetrica } from "./lib.js";
 
-const chaveSimetrica = simetrica();
+const chaveSimetrica = gerarChaveSimetrica();
 
 const server = createServer((client) => {
   console.log(client);
