@@ -1,5 +1,6 @@
 import {
   createCipheriv,
+  createDecipheriv,
   createHash,
   generateKeyPairSync,
   generateKeySync,
@@ -31,6 +32,30 @@ export const encriptar = (mensagem: string, chave: string) => {
     mensagemEncriptada,
     vetorAleatorio: vetorAleatorio.toString("base64"),
   };
+};
+
+const desencriptar = (
+  mensagemEncriptada: string,
+  chave: string,
+  vetorAleatorio: string,
+) => {
+  const chaveSimetrica = Buffer.from(chave, "base64");
+  const vetorAleatorioBuffer = Buffer.from(vetorAleatorio, "base64");
+
+  const decifra = createDecipheriv(
+    "aes-128-cbc",
+    chaveSimetrica,
+    vetorAleatorioBuffer,
+  );
+
+  let mensagemDecriptada = decifra.update(
+    mensagemEncriptada,
+    "base64",
+    "utf-8",
+  );
+  mensagemDecriptada += decifra.final("utf-8");
+
+  return mensagemDecriptada;
 };
 
 // RSA
