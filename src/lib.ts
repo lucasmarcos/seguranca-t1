@@ -4,6 +4,7 @@ import {
   createHash,
   generateKeyPairSync,
   generateKeySync,
+  privateDecrypt,
   publicDecrypt,
   publicEncrypt,
   randomBytes,
@@ -77,8 +78,38 @@ export const gerarChavesAssimetricas = () => {
   return { publicKey, privateKey };
 };
 
+export const encriptarComChavePublica = (
+  mensagem: string,
+  chavePublica: string,
+) => {
+  return publicEncrypt(chavePublica, mensagem);
+};
+
+export const desencriptarComChavePublica = (
+  mensagem: string,
+  chavePublica: string,
+) => {
+  return publicDecrypt(chavePublica, mensagem);
+};
+
+export const encriptarComChavePrivada = (
+  mensagem: string,
+  chavePrivada: string,
+) => {
+  return privateDecrypt(chavePrivada, mensagem);
+};
+
+export const desencriptarComChavePrivada = (
+  mensagem: string,
+  chavePrivada: string,
+) => {
+  return privateDecrypt(chavePrivada, mensagem);
+};
+
+// Assinatura
 export const assinar = (chavePrivada: string, hash: string) => {};
 
+// Certificado
 export const gerarCertificado = (dono: string, chavePublica: string) => {
   return {
     dono,
