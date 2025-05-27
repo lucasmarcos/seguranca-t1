@@ -61,7 +61,7 @@ function gerar() {
 }
 
 function runProgram(arquivo) {
-  const scriptPath = resolve(arquivo);
+  const scriptPath = resolve("out", arquivo);
 
   const processo = spawn("node", [scriptPath], {
     stdio: "inherit",
