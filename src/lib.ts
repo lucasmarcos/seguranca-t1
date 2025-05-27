@@ -1,4 +1,5 @@
 import {
+  type CipherKey,
   createCipheriv,
   createDecipheriv,
   createHash,
@@ -44,14 +45,13 @@ export const hash = (mensagem: string) => {
 // Criptografia simétrica para proteger o conteúdo da mensagem
 // Criptografia Simétrica (AES): Usada para criptografar a mensagem com uma única chave
 export const gerarChaveSimetrica = () => {
-  return randomBytes(16).toString("base64");
+  return randomBytes(16);
 };
 
-export const encriptar = (mensagem: string, chave: string) => {
+export const encriptar = (mensagem: string, chave: CipherKey) => {
   const vetorAleatorio = randomBytes(16);
-  const chaveSimetrica = Buffer.from(chave, "base64");
 
-  const cifra = createCipheriv("aes-128-cbc", chaveSimetrica, vetorAleatorio);
+  const cifra = createCipheriv("aes-128-cbc", chave, vetorAleatorio);
 
   let mensagemEncriptada = cifra.update(mensagem, "utf-8", "base64");
   mensagemEncriptada += cifra.final("base64");
@@ -64,17 +64,12 @@ export const encriptar = (mensagem: string, chave: string) => {
 
 export const decriptar = (
   mensagemEncriptada: string,
-  chave: string,
+  chave,
   vetorAleatorio: string,
 ) => {
-  const chaveSimetrica = Buffer.from(chave, "base64");
   const vetorAleatorioBuffer = Buffer.from(vetorAleatorio, "base64");
 
-  const decifra = createDecipheriv(
-    "aes-128-cbc",
-    chave,
-    vetorAleatorioBuffer,
-  );
+  const decifra = createDecipheriv("aes-128-cbc", chave, vetorAleatorioBuffer);
 
   let mensagemDecriptada = decifra.update(
     mensagemEncriptada,
@@ -106,10 +101,7 @@ export const gerarChavesAssimetricas = () => {
   return { publicKey, privateKey };
 };
 
-export const encriptarComChavePublica = (
-  mensagem: string,
-  chavePublica: string,
-) => {
+export const encriptarComChavePublica = (mensagem, chavePublica: string) => {
   return publicEncrypt(chavePublica, mensagem);
 };
 

@@ -1,3 +1,4 @@
+import type { CipherKey } from "node:crypto";
 import { createServer } from "node:net";
 import {
   decriptar,
@@ -11,12 +12,13 @@ const cerificadoDoBob = JSON.parse(lerArquivo("certificado-bob.json"));
 const chavePublicaDoBob = cerificadoDoBob.chavePublica;
 const chavePrivadaDaAlice = lerArquivo("chave-privada-alice.pem");
 
-let chaveSimetrica: string;
+let chaveSimetrica: CipherKey;
 
 const server = createServer((socket) => {
-  console.log("Alice: Bob se conectou.");
+  console.log("alice: bob se conectou.");
 
   socket.on("data", (data) => {
+    console.log(`alice: recebendo mensagem ${data}`);
     const mensagens = data
       .toString()
       .split("}{")
@@ -35,30 +37,29 @@ const server = createServer((socket) => {
         const ok = verificar(encriptado, assinado, chavePublicaDoBob);
 
         if (!ok) {
-          console.error("Assinatura inválida na chave simétrica.");
+          console.error("alice: assinatura inválida na chave simétrica.");
           socket.destroy();
           return;
-        } else {
-          console.log("assinatura valida");
         }
+        console.log("alice: assinatura valida");
 
-        const chaveSimetricaBuffer = decriptarComChavePrivada(
+        chaveSimetrica = decriptarComChavePrivada(
           encriptado,
           chavePrivadaDaAlice,
         );
 
-        chaveSimetrica = chaveSimetricaBuffer.toString("base64");
-        console.log("Chave simétrica recebida e verificada.");
+        console.log("alice: chave simétrica recebida e verificada");
       } else if (recebido.mensagemEncriptada) {
         const { mensagemEncriptada, vetorAleatorio, h, sig } = recebido;
 
         const ok = verificar(h, sig, chavePublicaDoBob);
 
         if (!ok) {
-          console.error("Assinatura inválida na mensagem.");
+          console.error("alice: assinatura inválida na mensagem");
           socket.destroy();
           return;
         }
+        console.log("alice: assinatura valida");
 
         const mensagem = decriptar(
           mensagemEncriptada,
@@ -67,17 +68,18 @@ const server = createServer((socket) => {
         );
 
         if (h !== hash(mensagem)) {
-          console.error("Hash incorreto: integridade comprometida.");
+          console.error("alice: hash incorreto");
           socket.destroy();
           return;
         }
+        console.log("alice: hash validado");
 
-        console.log("Mensagem recebida:", mensagem);
+        console.log(`alice: mensagem recebida "${mensagem}"`);
       }
     }
   });
 });
 
 server.listen(3000, () => {
-  console.log("Alice: aguardando conexão de Bob...");
+  console.log("alice: aguardando conexão de bob");
 });
