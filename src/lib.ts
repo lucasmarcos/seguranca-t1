@@ -159,8 +159,8 @@ export const verificar = (
 // Certificado digital simulado para validar a chave pública do remetente
 // Certificado Digital: Confirma a identidade do remetente (simulado via JSON, por exemplo)
 export const gerarCertificado = (dono: string, chavePublica: string) => {
-  return {
+  return JSON.stringify({
     dono,
     chavePublica,
-  };
+  });
 };
