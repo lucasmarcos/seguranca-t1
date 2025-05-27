@@ -9,6 +9,8 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "lint": "biome check --write src"
+    "lint": "biome check --write src",
+    "alice": "node ./out/alice.js",
+    "bob": "node ./out/bob.js"
   }
 }

@@ -6,6 +6,7 @@ import {
   createVerify,
   generateKeyPairSync,
   privateDecrypt,
+  privateEncrypt,
   publicDecrypt,
   publicEncrypt,
   randomBytes,
@@ -71,7 +72,7 @@ export const decriptar = (
 
   const decifra = createDecipheriv(
     "aes-128-cbc",
-    chaveSimetrica,
+    chave,
     vetorAleatorioBuffer,
   );
 
@@ -123,14 +124,14 @@ export const encriptarComChavePrivada = (
   mensagem: string,
   chavePrivada: string,
 ) => {
-  return privateDecrypt(chavePrivada, mensagem);
+  return privateEncrypt(chavePrivada, mensagem);
 };
 
 export const decriptarComChavePrivada = (
   mensagem: string,
   chavePrivada: string,
 ) => {
-  return privateDecrypt(chavePrivada, mensagem);
+  return privateDecrypt(chavePrivada, Buffer.from(mensagem, "base64"));
 };
 
 // Assinatura

@@ -38,6 +38,8 @@ const server = createServer((socket) => {
           console.error("Assinatura inválida na chave simétrica.");
           socket.destroy();
           return;
+        } else {
+          console.log("assinatura valida");
         }
 
         const chaveSimetricaBuffer = decriptarComChavePrivada(
