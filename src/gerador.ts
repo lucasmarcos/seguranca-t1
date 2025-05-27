@@ -1,21 +1,14 @@
-import readline from "readline";
-import path from "path";
-import { fileURLToPath } from "url";
-import { spawn } from "child_process";
+import { spawn } from "node:child_process";
+import { resolve } from "node:path";
+import { createInterface } from "node:readline";
 
 import {
-  generateAsymmetricKeys,
-  generateCertificate,
-  saveFile,
+  gerarCertificado,
+  gerarChavesAssimetricas,
+  salvarArquivo,
 } from "./lib.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const ROOT_DIR = path.resolve(__dirname, "..");
-const BASE_PATH = path.resolve(ROOT_DIR, "out");
-
-const rl = readline.createInterface({
+const rl = createInterface({
   input: process.stdin,
   output: process.stdout,
 });
@@ -30,7 +23,7 @@ function showMenu() {
   rl.question("Escolha uma opção: ", (resposta) => {
     switch (resposta) {
       case "1":
-        generateKeysAndCertificates();
+        gerar();
         break;
       case "2":
         runProgram("alice.js");
@@ -42,33 +35,33 @@ function showMenu() {
         rl.close();
         break;
       default:
-        console.log("❌ Opção inválida.");
+        console.log("Opção inválida.");
         showMenu();
     }
   });
 }
 
-function generateKeysAndCertificates() {
-  const { publicKey: alicePub, privateKey: alicePriv } = generateAsymmetricKeys();
-  const certificadoAlice = generateCertificate("Alice", alicePub);
+function gerar() {
+  const { publicKey: chavePublicaDaAlice, privateKey: chavePrivadaDaAlice } =
+    gerarChavesAssimetricas();
+  const certificadoDaAlice = gerarCertificado("alice", chavePublicaDaAlice);
 
-  saveFile("certificado-alice.json", JSON.stringify(certificadoAlice, null, 2));
-  saveFile("chave-publica-alice.pem", alicePub);
-  saveFile("chave-privada-alice.pem", alicePriv);
+  salvarArquivo("certificado-alice.json", certificadoDaAlice);
+  salvarArquivo("chave-privada-alice.pem", chavePrivadaDaAlice);
 
-  const { publicKey: bobPub, privateKey: bobPriv } = generateAsymmetricKeys();
-  const certificadoBob = generateCertificate("Bob", bobPub);
+  const { publicKey: chavePublicaDoBob, privateKey: chavePrivadaDoBob } =
+    gerarChavesAssimetricas();
+  const certificadoDoBob = gerarCertificado("bob", chavePublicaDoBob);
 
-  saveFile("certificado-bob.json", JSON.stringify(certificadoBob, null, 2));
-  saveFile("chave-publica-bob.pem", bobPub);
-  saveFile("chave-privada-bob.pem", bobPriv);
+  salvarArquivo("certificado-bob.json", certificadoDoBob);
+  salvarArquivo("chave-privada-bob.pem", chavePrivadaDoBob);
 
-  console.log("✔️ Chaves e certificados gerados e salvos na pasta 'out/'.");
+  console.log("Chaves e certificados gerados e salvos na pasta './out/'.");
   showMenu();
 }
 
 function runProgram(arquivo) {
-  const scriptPath = path.resolve(BASE_PATH, arquivo);
+  const scriptPath = resolve(arquivo);
 
   const processo = spawn("node", [scriptPath], {
     stdio: "inherit",
