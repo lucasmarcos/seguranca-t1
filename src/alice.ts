@@ -21,12 +21,12 @@ const server = createServer((socket) => {
       .toString()
       .split("}{")
       .map((m, i, arr) => {
-        if (arr.length > 1 && i !== arr.length - 1) return m + "}";
-        if (i !== 0) return "{" + m;
+        if (arr.length > 1 && i !== arr.length - 1) return `${m}}`;
+        if (i !== 0) return `{${m}`;
         return m;
       });
 
-    mensagens.forEach((msg) => {
+    for (const msg of mensagens) {
       const recebido = JSON.parse(msg);
 
       if (recebido.encriptado) {
@@ -72,7 +72,7 @@ const server = createServer((socket) => {
 
         console.log("Mensagem recebida:", mensagem);
       }
-    });
+    }
   });
 });
 
