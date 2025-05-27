@@ -10,41 +10,44 @@ import {
   publicEncrypt,
   randomBytes,
 } from "node:crypto";
-
-import { fileURLToPath } from "url";
-import fs from "fs";
-import path from "path";
+import { existsSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ROOT_DIR = path.resolve(__dirname, "..");
-const BASE_PATH = path.resolve(ROOT_DIR, "out");
+const __dirname = dirname(__filename);
+const ROOT_DIR = resolve(__dirname, "..");
+const BASE_PATH = resolve(ROOT_DIR, "out");
 
-export function saveFile(nome: string, conteudo: string | Buffer) {
-  if (!fs.existsSync(BASE_PATH)) {
-    fs.mkdirSync(BASE_PATH, { recursive: true });
+export const salvarArquivo = (nome: string, conteudo: string) => {
+  if (!existsSync(BASE_PATH)) {
+    mkdirSync(BASE_PATH, { recursive: true });
   }
-  const filePath = path.join(BASE_PATH, nome);
-  fs.writeFileSync(filePath, conteudo);
-}
+  const caminho = join(BASE_PATH, nome);
+  writeFileSync(caminho, conteudo);
+};
 
-export function readFile(nome: string, encoding: BufferEncoding = "utf-8") {
-  const filePath = path.join(BASE_PATH, nome);
-  return fs.readFileSync(filePath, encoding);
-}
+export const lerArquivo = (nome: string) => {
+  const caminho = join(BASE_PATH, nome);
+  return readFileSync(caminho, "utf-8");
+};
 
 // SHA-256
-export const sha256Hash = (mensagem: string) => {
+// Hash para verificação de integridade,
+// Hash (SHA-256): Garante que a mensagem não foi alterada
+export const hash = (mensagem: string) => {
   return createHash("sha256").update(mensagem).digest("hex");
 };
 
 // AES
-export const generateSymmetricKey = () => {
+// Criptografia simétrica para proteger o conteúdo da mensagem
+// Criptografia Simétrica (AES): Usada para criptografar a mensagem com uma única chave
+export const gerarChaveSimetrica = () => {
   const key = randomBytes(16);
   return key.toString("base64");
 };
 
-export const encryptAES = (mensagem: string, chave: string) => {
+export const encriptar = (mensagem: string, chave: string) => {
   const vetorAleatorio = randomBytes(16);
   const chaveSimetrica = Buffer.from(chave, "base64");
 
@@ -59,10 +62,10 @@ export const encryptAES = (mensagem: string, chave: string) => {
   };
 };
 
-export const decryptAES = (
+export const decriptar = (
   mensagemEncriptada: string,
   chave: string,
-  vetorAleatorio: string
+  vetorAleatorio: string,
 ) => {
   const chaveSimetrica = Buffer.from(chave, "base64");
   const vetorAleatorioBuffer = Buffer.from(vetorAleatorio, "base64");
@@ -70,13 +73,13 @@ export const decryptAES = (
   const decifra = createDecipheriv(
     "aes-128-cbc",
     chaveSimetrica,
-    vetorAleatorioBuffer
+    vetorAleatorioBuffer,
   );
 
   let mensagemDecriptada = decifra.update(
     mensagemEncriptada,
     "base64",
-    "utf-8"
+    "utf-8",
   );
   mensagemDecriptada += decifra.final("utf-8");
 
@@ -84,7 +87,10 @@ export const decryptAES = (
 };
 
 // RSA
-export const generateAsymmetricKeys = () => {
+// Criptografia assimétrica para troca segura da chave simétrica
+// Criptografia Assimétrica (RSA):
+//   Usada para proteger a chave simétrica durante a transmissão
+export const gerarChavesAssimetricas = () => {
   const { publicKey, privateKey } = generateKeyPairSync("rsa", {
     modulusLength: 2048,
     publicKeyEncoding: {
@@ -100,46 +106,48 @@ export const generateAsymmetricKeys = () => {
   return { publicKey, privateKey };
 };
 
-export const encryptWithPublicKey = (
-  mensagem: Buffer | string,
-  chavePublica: string
+export const encriptarComChavePublica = (
+  mensagem: string,
+  chavePublica: string,
 ) => {
   return publicEncrypt(chavePublica, mensagem);
 };
 
-export const decryptWithPublicKey = (
-  mensagem: Buffer,
-  chavePublica: string
+export const decriptarComChavePublica = (
+  mensagem: string,
+  chavePublica: string,
 ) => {
   return publicDecrypt(chavePublica, mensagem);
 };
 
-export const encryptWithPrivateKey = (
-  mensagem: Buffer | string,
-  chavePrivada: string
+export const encriptarComChavePrivada = (
+  mensagem: string,
+  chavePrivada: string,
 ) => {
   return privateDecrypt(chavePrivada, mensagem);
 };
 
-export const decryptWithPrivateKey = (
-  mensagem: Buffer,
-  chavePrivada: string
+export const decriptarComChavePrivada = (
+  mensagem: string,
+  chavePrivada: string,
 ) => {
   return privateDecrypt(chavePrivada, mensagem);
 };
 
 // Assinatura
-export const signMessage = (mensagem: string, chavePrivada: string) => {
+// Assinatura digital para autenticar o remetente
+// Assinatura Digital: Garantia de autenticidade da mensagem
+export const assinar = (mensagem: string, chavePrivada: string) => {
   const assinador = createSign("SHA256");
   assinador.update(mensagem);
   assinador.end();
   return assinador.sign(chavePrivada, "base64");
 };
 
-export const verifySignature = (
+export const verificar = (
   mensagem: string,
   assinatura: string,
-  chavePublica: string
+  chavePublica: string,
 ) => {
   const assinaturaBuffer = Buffer.from(assinatura, "base64");
   const verificador = createVerify("SHA256");
@@ -149,6 +157,8 @@ export const verifySignature = (
 };
 
 // Certificado
+// Certificado digital simulado para validar a chave pública do remetente
+// Certificado Digital: Confirma a identidade do remetente (simulado via JSON, por exemplo)
 export const generateCertificate = (dono: string, chavePublica: string) => {
   return {
     dono,
