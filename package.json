@@ -10,6 +10,7 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "lint": "biome check --write src",
+    "setup": "node ./out/setup.js",
     "alice": "node ./out/alice.js",
     "bob": "node ./out/bob.js"
   }
