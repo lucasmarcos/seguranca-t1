@@ -10,7 +10,7 @@ import {
   publicEncrypt,
   randomBytes,
 } from "node:crypto";
-import { existsSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -159,7 +159,7 @@ export const verificar = (
 // Certificado
 // Certificado digital simulado para validar a chave pública do remetente
 // Certificado Digital: Confirma a identidade do remetente (simulado via JSON, por exemplo)
-export const generateCertificate = (dono: string, chavePublica: string) => {
+export const gerarCertificado = (dono: string, chavePublica: string) => {
   return {
     dono,
     chavePublica,
