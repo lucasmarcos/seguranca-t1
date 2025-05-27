@@ -1,37 +1,37 @@
-import { createConnection } from "net";
+import { connect } from "node:net";
 import {
-  encryptWithPublicKey,
-  signMessage,
-  encryptAES,
-  sha256Hash,
-  readFile,
+  assinar,
+  encriptar,
+  encriptarComChavePublica,
+  gerarChaveSimetrica,
+  hash,
+  lerArquivo,
 } from "./lib.js";
-import { randomBytes } from "crypto";
 
-const certAlice = JSON.parse(readFile("certificado-alice.json"));
-const pubAlice = certAlice.chavePublica;
-const privBob = readFile("chave-privada-bob.pem", "utf-8");
+const cerficadoDaAlice = JSON.parse(lerArquivo("certificado-alice.json"));
+const chavePublicaDaAlice = cerficadoDaAlice.chavePublica;
+const chavePrivadaDoBob = lerArquivo("chave-privada-bob.pem");
 
-const socket = createConnection({ port: 3000, host: "127.0.0.1" }, () => {
-  const symKey = randomBytes(16).toString("base64");
+const socket = connect({ port: 3000, host: "127.0.0.1" }, () => {
+  const chaveSimetrica = gerarChaveSimetrica();
 
-  const encryptedSymKey = encryptWithPublicKey(
-    Buffer.from(symKey, "base64"),
-    pubAlice
+  const encriptado = encriptarComChavePublica(
+    chaveSimetrica,
+    chavePublicaDaAlice,
   ).toString("base64");
 
-  const sigKey = signMessage(encryptedSymKey, privBob);
+  const assinado = assinar(encriptado, chavePrivadaDoBob);
 
-  socket.write(JSON.stringify({ encryptedSymKey, signature: sigKey }));
+  socket.write(JSON.stringify({ encriptado, assinado }));
 
   const texto = "Olá, Alice! Mensagem segura.";
-  const { mensagemEncriptada: ciphertext, vetorAleatorio: iv } = encryptAES(
+  const { mensagemEncriptada, vetorAleatorio } = encriptar(
     texto,
-    symKey
+    chaveSimetrica,
   );
 
-  const h = sha256Hash(texto);
-  const sigMsg = signMessage(h, privBob);
+  const h = hash(texto);
+  const sig = assinar(h, chavePrivadaDoBob);
 
-  socket.write(JSON.stringify({ iv, ciphertext, hash: h, signature: sigMsg }));
+  socket.write(JSON.stringify({ mensagemEncriptada, vetorAleatorio, h, sig }));
 });
