@@ -36,15 +36,14 @@ export const lerArquivo = (nome: string) => {
 // Hash para verificação de integridade,
 // Hash (SHA-256): Garante que a mensagem não foi alterada
 export const hash = (mensagem: string) => {
-  return createHash("sha256").update(mensagem).digest("hex");
+  return createHash("sha256").update(mensagem).digest("base64");
 };
 
 // AES
 // Criptografia simétrica para proteger o conteúdo da mensagem
 // Criptografia Simétrica (AES): Usada para criptografar a mensagem com uma única chave
 export const gerarChaveSimetrica = () => {
-  const key = randomBytes(16);
-  return key.toString("base64");
+  return randomBytes(16).toString("base64");
 };
 
 export const encriptar = (mensagem: string, chave: string) => {
